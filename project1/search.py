@@ -112,26 +112,8 @@ def s2dir(string):
     else:
         print "ERROR: Not a direction"
 
-def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first
-    [2nd Edition: p 75, 3rd Edition: p 87]
-
-    Your search algorithm needs to return a list of actions that reaches
-    the goal.  Make sure to implement a graph search algorithm
-    [2nd Edition: Fig. 3.18, 3rd Edition: Fig 3.7].
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
-    "*** YOUR CODE HERE ***"
-        
+def search(fringe, problem):
     startNode = Node(problem.getStartState())
-    fringe = util.Stack()
     fringe.push(startNode)
     
     visited = set()
@@ -153,6 +135,50 @@ def depthFirstSearch(problem):
             #print "Child node - ", kidn
             fringe.push(kidn)
     return None
+
+
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first
+    [2nd Edition: p 75, 3rd Edition: p 87]
+
+    Your search algorithm needs to return a list of actions that reaches
+    the goal.  Make sure to implement a graph search algorithm
+    [2nd Edition: Fig. 3.18, 3rd Edition: Fig 3.7].
+
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
+
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    """
+    "*** YOUR CODE HERE ***"
+        
+    #startNode = Node(problem.getStartState())
+    fringe = util.Stack()
+    #fringe.push(startNode)
+    '''
+    visited = set()
+    
+    while not fringe.isEmpty():
+        leaf = fringe.pop()
+        #print "Leaf - ", leaf
+        if leaf in visited:
+            #print "Visited already"
+            continue
+        visited.add(leaf)
+        if problem.isGoalState(leaf.pos):
+            #print "Goal state popped"
+            return leaf.actions
+        kids = problem.getSuccessors(leaf.pos)
+        #print "Children: ", kids
+        for kid in kids:
+            kidn = leaf.move(kid)
+            #print "Child node - ", kidn
+            fringe.push(kidn)
+    return None'''
+    return search(fringe, problem)
     
 def breadthFirstSearch(problem):
     """
