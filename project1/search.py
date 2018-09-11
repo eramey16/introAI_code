@@ -80,16 +80,18 @@ class Node:
     def __init__(self, position):
         self.pos = position
         self.actions = []
+        self.priority = 0
 
     def move(self, successor):
         newpos = successor[0]
         direction = s2dir(successor[1])
-        cost = successor[2]
+        g = successor[2]
         
         newNode = copy.deepcopy(self)
         newNode.actions.append(direction)
-        
         newNode.pos = newpos
+        newNode.priority += g
+        
         return newNode
     
     def __eq__(self, other):
@@ -99,6 +101,9 @@ class Node:
         return "Node at: "+str(self.pos)+", actions: "+str(self.actions)
     def __hash__(self):
         return (5*self.pos[0]+7*self.pos[1]) % 100
+
+def priorityFunction(node):
+    return node.priority
 
 def s2dir(string):
     if string=="North":
@@ -154,9 +159,7 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    
-    fringe = util.Stack()
-    
+    fringe = util.Stack()   
     return search(fringe, problem)
     
 def breadthFirstSearch(problem):
@@ -171,7 +174,8 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueueWithFunction(priorityFunction)
+    return search(fringe, problem)
 
 def nullHeuristic(state, problem=None):
     """
