@@ -84,7 +84,7 @@ class Node:
     def move(self, successor):
         newpos = successor[0]
         direction = s2dir(successor[1])
-        #weight = successor[2]
+        cost = successor[2]
         
         newNode = copy.deepcopy(self)
         newNode.actions.append(direction)
@@ -154,30 +154,9 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-        
-    #startNode = Node(problem.getStartState())
-    fringe = util.Stack()
-    #fringe.push(startNode)
-    '''
-    visited = set()
     
-    while not fringe.isEmpty():
-        leaf = fringe.pop()
-        #print "Leaf - ", leaf
-        if leaf in visited:
-            #print "Visited already"
-            continue
-        visited.add(leaf)
-        if problem.isGoalState(leaf.pos):
-            #print "Goal state popped"
-            return leaf.actions
-        kids = problem.getSuccessors(leaf.pos)
-        #print "Children: ", kids
-        for kid in kids:
-            kidn = leaf.move(kid)
-            #print "Child node - ", kidn
-            fringe.push(kidn)
-    return None'''
+    fringe = util.Stack()
+    
     return search(fringe, problem)
     
 def breadthFirstSearch(problem):
@@ -186,7 +165,8 @@ def breadthFirstSearch(problem):
     [2nd Edition: p 73, 3rd Edition: p 82]
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Queue()
+    return search(fringe, problem)
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
