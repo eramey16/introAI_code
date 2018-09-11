@@ -134,24 +134,25 @@ def depthFirstSearch(problem):
     fringe = util.Stack()
     fringe.push(startNode)
     
-    print startNode
     visited = set()
     
     while not fringe.isEmpty():
         leaf = fringe.pop()
-        print "Node at: ", leaf.pos
+        #print "Leaf - ", leaf
         if leaf in visited:
+            #print "Visited already"
             continue
+        visited.add(leaf)
         if problem.isGoalState(leaf.pos):
+            #print "Goal state popped"
             return leaf.actions
         kids = problem.getSuccessors(leaf.pos)
-        print "Children: ", kids
+        #print "Children: ", kids
         for kid in kids:
             kidn = leaf.move(kid)
-            visited.add(kidn)
+            #print "Child node - ", kidn
             fringe.push(kidn)
-            
-    return []
+    return None
     
 def breadthFirstSearch(problem):
     """
