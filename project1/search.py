@@ -84,7 +84,7 @@ class Node:
 
     def move(self, successor):
         newpos = successor[0]
-        direction = s2dir(successor[1])
+        direction = successor[1]
         g = successor[2]
         
         newNode = copy.deepcopy(self)
@@ -100,11 +100,11 @@ class Node:
     def __str__(self):
         return "Node at: "+str(self.pos)+", actions: "+str(self.actions)
     def __hash__(self):
-        return (5*self.pos[0]+7*self.pos[1]) % 100
+        return hash(self.pos)
 
 def priorityFunction(node):
     return node.priority
-
+'''
 def s2dir(string):
     if string=="North":
         return Directions.NORTH
@@ -116,7 +116,7 @@ def s2dir(string):
         return Directions.WEST
     else:
         print "ERROR: Not a direction"
-
+'''
 def search(fringe, problem):
     startNode = Node(problem.getStartState())
     fringe.push(startNode)
