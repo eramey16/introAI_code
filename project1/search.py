@@ -104,19 +104,7 @@ class Node:
 
 def priorityFunction(node):
     return node.priority
-'''
-def s2dir(string):
-    if string=="North":
-        return Directions.NORTH
-    elif string=="South":
-        return Directions.SOUTH
-    elif string=="East":
-        return Directions.EAST
-    elif string=="West":
-        return Directions.WEST
-    else:
-        print "ERROR: Not a direction"
-'''
+
 def search(fringe, problem):
     startNode = Node(problem.getStartState())
     fringe.push(startNode)
