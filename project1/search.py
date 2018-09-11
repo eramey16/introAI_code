@@ -69,6 +69,8 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s,s,w,s,w,w,s,w]
 
+# Node class
+# Holds a position and a list of steps to get there
 class Node:
     n = Directions.NORTH
     s = Directions.SOUTH
@@ -79,21 +81,15 @@ class Node:
         self.pos = position
         self.actions = []
 
-    def move(self, direction):
+    def move(self, successor):
+        newpos = successor[0]
+        direction = s2dir(successor[1])
+        #weight = successor[2]
+        
         newNode = copy.deepcopy(self)
         newNode.actions.append(direction)
-        x = newNode.pos[0]
-        y = newNode.pos[1]
         
-        if direction==self.n:
-            y+=1
-        elif direction==self.s:
-            y-=1
-        elif direction==self.e:
-            x+=1
-        elif direction==self.w:
-            x-=1
-        newNode.pos = (x, y)
+        newNode.pos = newpos
         return newNode
     
     def __eq__(self, other):
@@ -101,6 +97,8 @@ class Node:
     
     def __str__(self):
         return "Node at: "+str(self.pos)+", actions: "+str(self.actions)
+    def __hash__(self):
+        return (5*self.pos[0]+7*self.pos[1]) % 100
 
 def s2dir(string):
     if string=="North":
@@ -133,14 +131,26 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
         
     startNode = Node(problem.getStartState())
-    search = util.Stack()
-    search.push(startNode)
+    fringe = util.Stack()
+    fringe.push(startNode)
     
-    print search.list
     print startNode
-    visited = []
+    visited = set()
     
-    
+    while not fringe.isEmpty():
+        leaf = fringe.pop()
+        print "Node at: ", leaf.pos
+        if leaf in visited:
+            continue
+        if problem.isGoalState(leaf.pos):
+            return leaf.actions
+        kids = problem.getSuccessors(leaf.pos)
+        print "Children: ", kids
+        for kid in kids:
+            kidn = leaf.move(kid)
+            visited.add(kidn)
+            fringe.push(kidn)
+            
     return []
     
 def breadthFirstSearch(problem):
