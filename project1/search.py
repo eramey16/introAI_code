@@ -72,25 +72,23 @@ def tinyMazeSearch(problem):
 # Node class
 # Holds a position and a list of steps to get there
 class Node:
-    n = Directions.NORTH
-    s = Directions.SOUTH
-    e = Directions.EAST
-    w = Directions.WEST
     
     def __init__(self, position):
         self.pos = position
         self.actions = []
         self.priority = 0
+        self.cost = 0
 
-    def move(self, successor):
+    def move(self, successor, heuristic=None, problem=None):
         newpos = successor[0]
         direction = successor[1]
-        g = successor[2]
-        
+        f = successor[2]
+        if heuristic:
+            f += heuristic(self.pos, problem)
         newNode = copy.deepcopy(self)
         newNode.actions.append(direction)
         newNode.pos = newpos
-        newNode.priority += g
+        newNode.priority = newNode.cost+f
         
         return newNode
     
@@ -105,7 +103,7 @@ class Node:
 def priorityFunction(node):
     return node.priority
 
-def search(fringe, problem):
+def search(fringe, problem, heuristic=None):
     startNode = Node(problem.getStartState())
     fringe.push(startNode)
     
@@ -124,7 +122,7 @@ def search(fringe, problem):
         kids = problem.getSuccessors(leaf.pos)
         #print "Children: ", kids
         for kid in kids:
-            kidn = leaf.move(kid)
+            kidn = leaf.move(kid, heuristic, problem)
             #print "Child node - ", kidn
             fringe.push(kidn)
     return None
@@ -175,7 +173,8 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueueWithFunction(priorityFunction)
+    return search(fringe, problem, heuristic)
 
 
 # Abbreviations
