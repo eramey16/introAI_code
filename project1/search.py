@@ -80,15 +80,19 @@ class Node:
         self.cost = 0
 
     def move(self, successor, heuristic=None, problem=None):
+        #print successor
         newpos = successor[0]
         direction = successor[1]
-        f = successor[2]
+        newCost = self.cost+successor[2]
+        f = newCost
         if heuristic:
-            f += heuristic(self.pos, problem)
+            f += heuristic(newpos, problem)
+            #print "Heuristic at "+str(newpos)+" "+str(heuristic(newpos, problem))
         newNode = copy.deepcopy(self)
         newNode.actions.append(direction)
         newNode.pos = newpos
-        newNode.priority = newNode.cost+f
+        newNode.cost = newCost
+        newNode.priority = f
         
         return newNode
     
@@ -96,7 +100,7 @@ class Node:
         return self.pos==other.pos
     
     def __str__(self):
-        return "Node at: "+str(self.pos)+", actions: "+str(self.actions)
+        return "Node at: "+str(self.pos)+", actions: "+str(self.actions)+", bcost: "+str(self.cost)+", priority: "+str(self.priority)
     def __hash__(self):
         return hash(self.pos)
 
@@ -111,7 +115,7 @@ def search(fringe, problem, heuristic=None):
     
     while not fringe.isEmpty():
         leaf = fringe.pop()
-        #print "Leaf - ", leaf
+        #print "\nLeaf - "+str(leaf)+"\n"
         if leaf in visited:
             #print "Visited already"
             continue
@@ -123,6 +127,7 @@ def search(fringe, problem, heuristic=None):
         #print "Children: ", kids
         for kid in kids:
             kidn = leaf.move(kid, heuristic, problem)
+            
             #print "Child node - ", kidn
             fringe.push(kidn)
     return None
@@ -174,6 +179,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
     "*** YOUR CODE HERE ***"
     fringe = util.PriorityQueueWithFunction(priorityFunction)
+    
     return search(fringe, problem, heuristic)
 
 
