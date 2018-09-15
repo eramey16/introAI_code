@@ -102,35 +102,52 @@ class Node:
     def __str__(self):
         return "Node at: "+str(self.pos)+", actions: "+str(self.actions)+", bcost: "+str(self.cost)+", priority: "+str(self.priority)
     def __hash__(self):
-        return hash(self.pos)
+        return 1
 
+# priority function for priority queue
+# priority is kept track of in the nodes
 def priorityFunction(node):
     return node.priority
 
+# search function, used for all types of search
+# fringe - a data structure for the fringe
+# problem - the search problem
+# heuristic - the heuristic being used
 def search(fringe, problem, heuristic=None):
+    # add the start state to the fringe
     startNode = Node(problem.getStartState())
     fringe.push(startNode)
     
+    # keep track of visited states
     visited = set()
     
+    # while nodes remain on the fringe
     while not fringe.isEmpty():
+        # get highest priority leaf node
         leaf = fringe.pop()
-        #print "\nLeaf - "+str(leaf)+"\n"
+        print "\nLeaf - "+str(leaf)+"\n"
+        # check if it is a repeat
         if leaf in visited:
             #print "Visited already"
             continue
+        # add it to the visited set
         visited.add(leaf)
+        # Goal check
         if problem.isGoalState(leaf.pos):
             #print "Goal state popped"
             return leaf.actions
+        
+        # get the next possible actions
         kids = problem.getSuccessors(leaf.pos)
         #print "Children: ", kids
         for kid in kids:
+            # regiter the cost of each child state
             kidn = leaf.move(kid, heuristic, problem)
-            
+            # push the child node onto the fringe
             #print "Child node - ", kidn
             fringe.push(kidn)
-    return None
+    print "\nreturning None\n"
+    return []
 
 
 def depthFirstSearch(problem):
