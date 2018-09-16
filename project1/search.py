@@ -125,7 +125,7 @@ def search(fringe, problem, heuristic=None):
     while not fringe.isEmpty():
         # get highest priority leaf node
         leaf = fringe.pop()
-        print "\nLeaf - "+str(leaf)+"\n"
+        #print "\nLeaf - "+str(leaf)+"\n"
         # check if it is a repeat
         if leaf in visited:
             #print "Visited already"
@@ -146,7 +146,7 @@ def search(fringe, problem, heuristic=None):
             # push the child node onto the fringe
             #print "Child node - ", kidn
             fringe.push(kidn)
-    print "\nreturning None\n"
+    #print "\nreturning None\n"
     return []
 
 
