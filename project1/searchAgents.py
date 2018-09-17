@@ -344,21 +344,16 @@ class CornersProblem(search.SearchProblem):
         return len(actions)
 
 # manhattan distance between 2 points
-def manhattan(xy1, xy2):
-    return abs(xy1[0]-xy2[0])+abs(xy1[1]-xy2[1])
+def manhattan(pt0, pt1):
+    return util.manhattanDistance(pt0, pt1)
 
-def closest(pt0, pts):
-    minDistance = float("infinity")
-    c = None
+def farthest(pt0, pts):
+    maxDistance = 0
     for pt in pts:
         d = manhattan(pt0, pt)
-        if d<minDistance:
-            minDistance = d
-            c = pt
-    return (c, minDistance)
-
-def adjacent(pt0, pt1):
-    return pt0[0]==pt1[0] or pt0[1]==pt1[1]
+        if d>maxDistance:
+            maxDistance = d
+    return maxDistance
 
 def cornersHeuristic(state, problem):
     """
@@ -378,12 +373,11 @@ def cornersHeuristic(state, problem):
     
     # position and corner variables
     pos = state[0]
-    toVisit = list(state[1])[:]
-    
-    # start with distance to closest corner
-    c = closest(pos, corners)[1]
-    # the distance to the other corners must be less than that
-    return (len(toVisit)-1)*c
+    toVisit = state[1]
+        
+    # Distance to the farthest un-visited corner
+    d = farthest(pos, toVisit)
+    return d
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
