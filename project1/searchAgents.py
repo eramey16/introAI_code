@@ -357,6 +357,9 @@ def closest(pt0, pts):
             c = pt
     return (c, minDistance)
 
+def adjacent(pt0, pt1):
+    return pt0[0]==pt1[0] or pt0[1]==pt1[1]
+
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -373,30 +376,14 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
     
+    # position and corner variables
     pos = state[0]
     toVisit = list(state[1])[:]
     
-    h = []
-    for corner1 in toVisit:
-        dtot = manhattan(corner1, pos)
-        d = []
-        for corner2 in toVisit:
-            if corner1!=corner2:
-                d.append(manhattan(corner1, corner2))
-        if len(d)!=0:
-            dtot+=(len(toVisit)-1)*min(d)
-
-        h.append(dtot)
-    
-    #currentPos = pos
-    #totalDistance = 0
-    #for i in range(len(toVisit)-1):
-        #c = closest(currentPos, toVisit)
-        #currentPos = c[0]
-        #totalDistance += c[1]
-    if len(h)!=0:
-        return min(h)
-    return 0
+    # start with distance to closest corner
+    c = closest(pos, corners)[1]
+    # the distance to the other corners must be less than that
+    return (len(toVisit)-1)*c
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -486,7 +473,7 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
+    print(foodGrid)
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):
