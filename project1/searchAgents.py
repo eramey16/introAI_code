@@ -345,7 +345,7 @@ class CornersProblem(search.SearchProblem):
 
 # manhattan distance between 2 points
 def manhattan(xy1, xy2):
-    return abs(xy1[0]-xy2[0])+abs(xy1[1]+xy2[1])
+    return abs(xy1[0]-xy2[0])+abs(xy1[1]-xy2[1])
 
 def closest(pt0, pts):
     minDistance = float("infinity")
@@ -374,16 +374,29 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
     
     pos = state[0]
-    toVisit = state[1]
+    toVisit = list(state[1])[:]
     
-    currentPos = pos
-    totalDistance = 0
-    for i in range(len(toVisit)):
-        c = closest(currentPos, toVisit)
-        currentPos = c[0]
-        totalDistance += c[1]
+    h = []
+    for corner1 in toVisit:
+        dtot = manhattan(corner1, pos)
+        d = []
+        for corner2 in toVisit:
+            if corner1!=corner2:
+                d.append(manhattan(corner1, corner2))
+        if len(d)!=0:
+            dtot+=(len(toVisit)-1)*min(d)
+
+        h.append(dtot)
     
-    return totalDistance
+    #currentPos = pos
+    #totalDistance = 0
+    #for i in range(len(toVisit)-1):
+        #c = closest(currentPos, toVisit)
+        #currentPos = c[0]
+        #totalDistance += c[1]
+    if len(h)!=0:
+        return min(h)
+    return 0
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
