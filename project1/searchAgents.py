@@ -347,6 +347,7 @@ class CornersProblem(search.SearchProblem):
 def manhattan(pt0, pt1):
     return util.manhattanDistance(pt0, pt1)
 
+# Finds the farthest from a point
 def farthest(pt0, pts):
     maxDistance = 0
     for pt in pts:
