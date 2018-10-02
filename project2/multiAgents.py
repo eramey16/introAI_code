@@ -77,18 +77,21 @@ class ReflexAgent(Agent):
     #xGhost = [newGhostStates[i].getPosition()[0] for i in range(len(newGhostStates))]
     #[yGhost = newGhostStates[i].getPosition()[1] for i in range(len(newGhostStates))]
     for gTuple in newGhostStates:
-        if manhattanDistance(gTuple.getPosition(), newPos) < 3:
-            return -500
+        d = manhattanDistance(gTuple.getPosition(), newPos)
+        if d < 2:
+            return -10
+        if d < 3:
+            return -20
 
     if len(currentGameState.getFood().asList()) > len(newFood.asList()):
-        return 499
+        return 500
     minDist = float("infinity")
     for food in newFood.asList():
 
         md = manhattanDistance(food, newPos)
         if md < minDist:
             minDist = md
-    return 1/minDist
+    return 1/minDist*100
 
 def scoreEvaluationFunction(currentGameState):
   """
@@ -120,6 +123,11 @@ class MultiAgentSearchAgent(Agent):
     self.evaluationFunction = util.lookup(evalFn, globals())
     self.depth = int(depth)
 
+### Value function, adapted course
+
+def value(gameState, d, maxdepth, agents, i, evalFn):
+    print gameState.getLegalActions()
+
 class MinimaxAgent(MultiAgentSearchAgent):
   """
     Your minimax agent (question 2)
@@ -146,7 +154,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns the total number of agents in the game
     """
     
-    util.raiseNotDefined()
+    return value(gameState, 0, self.depth, [], 0, evalFn)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
