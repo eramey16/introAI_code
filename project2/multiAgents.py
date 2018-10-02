@@ -123,15 +123,54 @@ class MultiAgentSearchAgent(Agent):
     self.evaluationFunction = util.lookup(evalFn, globals())
     self.depth = int(depth)
 
-### Value function, adapted course
-
-def value(gameState, d, maxdepth, agents, i, evalFn):
-    print gameState.getLegalActions()
-
 class MinimaxAgent(MultiAgentSearchAgent):
   """
     Your minimax agent (question 2)
   """
+  ## Value function, adapted from slides
+  def value(self, state, d, agentIndex):
+    #check if we are on pacman again
+    if agentIndex == state.getNumAgents():
+      #if so, increase depth and change index
+      d += 1
+      agentIndex = 0
+    #if we are at depth now
+    if d > self.depth:
+      #return what we think the state is worth
+      return self.evaluationFunction(state)
+    #if it's about to return to the main function
+    if agentIndex==0 and d==1:
+      #return the direction to go, not the value  
+      return self.minimax(state, d, agentIndex)[1]
+    # otherwise return the value to the minimax agent
+    return self.minimax(state, d, agentIndex)[0]
+  
+  #minimax agent minimizes or maximizes the value
+  def minimax(self, state, d, agentIndex):
+    #initialize list of actions and values
+    actions = state.getLegalActions(agentIndex)
+    if Directions.STOP in actions:
+        actions.remove(Directions.STOP)
+    values = []
+    #what's the next agent's index?
+    nextAgent = agentIndex+1
+    #if there are no more actions to take
+    if len(actions)==0:
+        # return the value of the state
+        return (self.evaluationFunction(state), Directions.STOP)
+    #for each possible action
+    for action in actions:
+        # add the value of that action to values[]
+        values.append(self.value(state.generateSuccessor(agentIndex, action), d, nextAgent))
+    # if the agent is pacman, maximize the value
+    if agentIndex==0:
+        best = max(values)
+    else:
+        best = min(values) #otherwise, minimize the value
+    #index of the best value, according to the agent
+    i = values.index(best)
+    #return the best action and its value
+    return (values[i], actions[i])
 
   def getAction(self, gameState):
     """
@@ -153,8 +192,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
       gameState.getNumAgents():
         Returns the total number of agents in the game
     """
-    
-    return value(gameState, 0, self.depth, [], 0, evalFn)
+    return self.value(gameState, 1, 0)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
