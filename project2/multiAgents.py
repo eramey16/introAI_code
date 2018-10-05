@@ -198,18 +198,127 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
   """
     Your minimax agent with alpha-beta pruning (question 3)
   """
+  ## Value function, adapted from slides
+  def value(self, state, d, agentIndex, a, b):
+    #check if we are on pacman again
+    if agentIndex == state.getNumAgents():
+      d += 1 #increase the depth
+      agentIndex = 0 #start again at pacman
+    #if we are at max depth now
+    if d > self.depth:
+      #return what we think the state is worth
+      return (self.evaluationFunction(state), Directions.STOP)
+    val, direction = self.minimax(state, d, agentIndex, a, b)
+    print "From minimax: ", val, ", ", direction
+    #if it's about to return to the main function
+    if agentIndex==0 and d==1:
+        print "Return to function"
+      #return the direction to go, not the value  
+      #return direction
+    # otherwise return the value to the minimax agent
+    #return val
+    return (val, direction)
+  
+  #minimax agent minimizes or maximizes the value
+  def minimax(self, state, d, agentIndex, a, b):
+    #initialize list of actions and values
+    actions = state.getLegalActions(agentIndex)
+    if Directions.STOP in actions:
+        actions.remove(Directions.STOP)
+    print "Legal actions: ", actions
+    values = []
+    orderActions = []
+    #what's the next agent's index?
+    nextAgent = agentIndex+1
+    #if there are no more actions to take
+    if len(actions)==0:
+        # return the value of the state
+        return (self.evaluationFunction(state), Directions.STOP)
+    #for each possible action
+    for action in actions:
+        print "Action: ", action
+        # add the value of that action to values[]
+        v, direction = self.value(state.generateSuccessor(agentIndex, action), d, nextAgent, a, b)
+        print "from value: ", v, ", ", direction
+        # alpha-beta pruning
+        if agentIndex==0:
+            if v >= b:
+                return (v, action)
+            a = max(a, v)
+        else:
+            if v <= a:
+                return (v, action)
+            b = min(b, v)
+        values.append(v)
+        orderActions.append(action)
+    # if the agent is pacman, maximize the value
+    if agentIndex==0:
+        best = max(values)
+    else:
+        best = min(values) #otherwise, minimize the value
+    #index of the best value, according to the agent
+    i = values.index(best)
+    #return the best action and its value
+    return (best, orderActions[i])
 
   def getAction(self, gameState):
     """
       Returns the minimax action using self.depth and self.evaluationFunction
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    a = 0
+    b = float('infinity')
+    return self.value(gameState, 0, 1, a, b)[0]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
   """
     Your expectimax agent (question 4)
   """
+  ## Value function, adapted from slides
+  def value(self, state, d, agentIndex):
+    #check if we are on pacman again
+    if agentIndex == state.getNumAgents():
+      #if so, increase depth and change index
+      d += 1
+      agentIndex = 0
+    #if we are at depth now
+    if d > self.depth:
+      #return what we think the state is worth
+      return self.evaluationFunction(state)
+    #if it's about to return to the main function
+    if agentIndex==0 and d==1:
+      #return the direction to go, not the value  
+      return self.expectimax(state, d, agentIndex)[1]
+    # otherwise return the value to the minimax agent
+    return self.expectimax(state, d, agentIndex)[0]
+  
+  #minimax agent minimizes or maximizes the value
+  def expectimax(self, state, d, agentIndex):
+    #initialize list of actions and values
+    actions = state.getLegalActions(agentIndex)
+    if Directions.STOP in actions:
+        actions.remove(Directions.STOP)
+    values = []
+    #what's the next agent's index?
+    nextAgent = agentIndex+1
+    #if there are no more actions to take
+    if len(actions)==0:
+        # return the value of the state
+        return (self.evaluationFunction(state), Directions.STOP)
+    #for each possible action
+    for action in actions:
+        # add the value of that action to values[]
+        values.append(self.value(state.generateSuccessor(agentIndex, action), d, nextAgent))
+    # if the agent is pacman, maximize the value
+    if agentIndex==0:
+        best = max(values)
+        #index of the best value, according to the agent
+        i = values.index(best)
+        #return the best action and its value
+        return (values[i], actions[i])
+    else:
+        exp = sum(values)/float(len(values)) #otherwise, take the expectation
+        return (exp, Directions.STOP)
 
   def getAction(self, gameState):
     """
@@ -219,7 +328,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       legal moves.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return self.value(gameState, 1, 0)
 
 def betterEvaluationFunction(currentGameState):
   """
