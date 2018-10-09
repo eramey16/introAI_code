@@ -353,6 +353,7 @@ def betterEvaluationFunction(currentGameState):
     pos = currentGameState.getPacmanPosition()
     ghosts = []
     gdists = []
+    gstates = currentGameState.getGhostStates()
     for i in range(1, currentGameState.getNumAgents()):
         g = currentGameState.getGhostPosition(i)
         ghosts.append(g)
@@ -370,8 +371,8 @@ def betterEvaluationFunction(currentGameState):
     b = 1
     c = 10
 
-    for d in gdists:
-        if d<3:
+    for i in range(len(gdists)):
+        if gdists[i]<3:
             gterm-=30
     
     total = a*fterm + b*gterm + c*dterm
