@@ -324,38 +324,67 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 def closest(pos, others):
     if len(others)==0:
-        return 0
+        return (0, True, True)
     d = float("infinity")
+    loc = None
     for other in others:
-        d = min(d, other)
-    return d
+        d2 = manhattanDistance(pos, other)
+        if d2 < d:
+            d = d2
+            loc = other
+    right = other[0] > pos[0]
+    up = other[1] > pos[1]
+    return (d, right, up)
 
 def betterEvaluationFunction(currentGameState):
-  """
+    """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
-  """
-  "*** YOUR CODE HERE ***"
-  #more food = worse score
-  #closer food = good score
-  #closer than 3 ghost = bad score
-  food = currentGameState.getFood()
-  foodList = food.asList()
-  pos = currentGameState.getPacmanPosition()
-  retValue = 10*(food.width*food.height - len(food.asList()))
-  if len(foodList) == 0:
-    return retValue*10
-  temp = closest(pos, foodList)
-  #print("temp: ", temp)
-  closestFood = float(10)/(float(temp)+1) #update retValue
-  retValue = retValue + closestFood
-  for i in range(1, currentGameState.getNumAgents()):
-    if manhattanDistance(currentGameState.getGhostPosition(i), currentGameState.getPacmanPosition()) < 3:
-      retValue = retValue - 15 #do we want to do a BFS on ghosts
-  #update retValue
-  return retValue
+    """
+    "*** YOUR CODE HERE ***"
+    #more food = worse score
+    #closer food = good score
+    #closer than 3 ghost = bad score
+  
+    foodGrid = currentGameState.getFood()
+    food = foodGrid.asList()
+    pos = currentGameState.getPacmanPosition()
+    ghosts = []
+    gdists = []
+    for i in range(1, currentGameState.getNumAgents()):
+        g = currentGameState.getGhostPosition(i)
+        ghosts.append(g)
+        gdists.append(manhattanDistance(pos, g))
+    
+    #fterm = len(food)
+    fterm = foodGrid.width*foodGrid.height-len(food)
+    #gterm = closest(pos, ghosts)[0]
+    gterm = 0
+    fdist, right, up = closest(pos, food)
+    dterm = 1/float(fdist+1)
+  
+    #coefficients
+    a = 10
+    b = 1
+    c = 10
+
+    for d in gdists:
+        if d<3:
+            gterm-=30
+    
+    total = a*fterm + b*gterm + c*dterm
+
+    if len(food)==0:
+        total *= 10
+    
+    # break ties
+    #if right:
+    #    total+=2
+    #if up:
+    #    total+=1
+    return total
 
 def breadthFirstSearch(gameState):
     """
