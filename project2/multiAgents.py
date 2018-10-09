@@ -198,36 +198,32 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
   """
     Your minimax agent with alpha-beta pruning (question 3)
   """
+
   ## Value function, adapted from slides
-  def value(self, state, d, agentIndex, a, b):
+  def value(self, state, d, agentIndex, alpha, beta):
     #check if we are on pacman again
     if agentIndex == state.getNumAgents():
-      d += 1 #increase the depth
-      agentIndex = 0 #start again at pacman
-    #if we are at max depth now
+      #if so, increase depth and change index
+      d += 1
+      agentIndex = 0
+    #if we are at depth now
     if d > self.depth:
       #return what we think the state is worth
-      return (self.evaluationFunction(state), Directions.STOP)
-    val, direction = self.minimax(state, d, agentIndex, a, b)
-    print "From minimax: ", val, ", ", direction
+      return self.evaluationFunction(state)
     #if it's about to return to the main function
     if agentIndex==0 and d==1:
-        print "Return to function"
       #return the direction to go, not the value  
-      #return direction
+      return self.minimax(state, d, agentIndex, alpha, beta)[1]
     # otherwise return the value to the minimax agent
-    #return val
-    return (val, direction)
+    return self.minimax(state, d, agentIndex, alpha, beta)[0]
   
   #minimax agent minimizes or maximizes the value
-  def minimax(self, state, d, agentIndex, a, b):
+  def minimax(self, state, d, agentIndex, alpha, beta):
     #initialize list of actions and values
     actions = state.getLegalActions(agentIndex)
     if Directions.STOP in actions:
         actions.remove(Directions.STOP)
-    print "Legal actions: ", actions
     values = []
-    orderActions = []
     #what's the next agent's index?
     nextAgent = agentIndex+1
     #if there are no more actions to take
@@ -236,21 +232,17 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return (self.evaluationFunction(state), Directions.STOP)
     #for each possible action
     for action in actions:
-        print "Action: ", action
         # add the value of that action to values[]
-        v, direction = self.value(state.generateSuccessor(agentIndex, action), d, nextAgent, a, b)
-        print "from value: ", v, ", ", direction
-        # alpha-beta pruning
+        v = self.value(state.generateSuccessor(agentIndex, action), d, nextAgent, alpha, beta)
         if agentIndex==0:
-            if v >= b:
+            if v >= beta:
                 return (v, action)
-            a = max(a, v)
+            alpha = max(v, alpha)
         else:
-            if v <= a:
+            if v <= alpha:
                 return (v, action)
-            b = min(b, v)
+            beta = min(v, beta)
         values.append(v)
-        orderActions.append(action)
     # if the agent is pacman, maximize the value
     if agentIndex==0:
         best = max(values)
@@ -259,16 +251,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     #index of the best value, according to the agent
     i = values.index(best)
     #return the best action and its value
-    return (best, orderActions[i])
+    return (values[i], actions[i])
 
   def getAction(self, gameState):
     """
       Returns the minimax action using self.depth and self.evaluationFunction
     """
     "*** YOUR CODE HERE ***"
-    a = 0
-    b = float('infinity')
-    return self.value(gameState, 0, 1, a, b)[0]
+    alpha = 0
+    beta = float('infinity')
+    return self.value(gameState, 1, 0, alpha, beta)
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
   """
@@ -330,6 +322,14 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     "*** YOUR CODE HERE ***"
     return self.value(gameState, 1, 0)
 
+def closest(pos, others):
+    if len(others)==0:
+        return 0
+    d = float("infinity")
+    for other in others:
+        d = min(d, other)
+    return d
+
 def betterEvaluationFunction(currentGameState):
   """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -338,7 +338,50 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  #more food = worse score
+  #closer food = good score
+  #closer than 3 ghost = bad score
+  food = currentGameState.getFood()
+  foodList = food.asList()
+  pos = currentGameState.getPacmanPosition()
+  retValue = 10*(food.width*food.height - len(food.asList()))
+  if len(foodList) == 0:
+    return retValue*10
+  temp = closest(pos, foodList)
+  #print("temp: ", temp)
+  closestFood = float(10)/(float(temp)+1) #update retValue
+  retValue = retValue + closestFood
+  for i in range(1, currentGameState.getNumAgents()):
+    if manhattanDistance(currentGameState.getGhostPosition(i), currentGameState.getPacmanPosition()) < 3:
+      retValue = retValue - 15 #do we want to do a BFS on ghosts
+  #update retValue
+  return retValue
+
+def breadthFirstSearch(gameState):
+    """
+    copied then altered from project one
+    """
+    originalFoodCount = len(gameState.getFood().asList())
+    fringe = util.Queue()
+    tup = (gameState, 1)
+    setPlease = set()  # set of positions
+    fringe.push(tup)
+    setPlease.add(gameState.getPacmanPosition())
+
+    while not fringe.isEmpty():
+      tuple = fringe.pop()
+      gs = tuple[0]
+      counter = tuple[1]
+      if len(gs.getFood().asList()) < originalFoodCount:
+        return counter
+      for action in gs.getLegalPacmanActions():
+          if action != Directions.STOP:
+              gs2 = gs.generatePacmanSuccessor(action)
+              tup = (gs2, counter + 1)
+              if gs2.getPacmanPosition() not in setPlease:
+                fringe.push(tup)
+                setPlease.add(gs2.getPacmanPosition)
+    #need retrace because should never be here
 
 # Abbreviation
 better = betterEvaluationFunction
