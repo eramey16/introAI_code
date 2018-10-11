@@ -158,7 +158,7 @@ class PositionSearchProblem(search.SearchProblem):
 
     def isGoalState(self, state):
         isGoal = state == self.goal
-
+        '''
         # For display purposes only
         if isGoal:
             self._visitedlist.append(state)
@@ -166,7 +166,7 @@ class PositionSearchProblem(search.SearchProblem):
             if '_display' in dir(__main__):
                 if 'drawExpandedCells' in dir(__main__._display): #@UndefinedVariable
                     __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
-
+        '''
         return isGoal
 
     def getSuccessors(self, state):

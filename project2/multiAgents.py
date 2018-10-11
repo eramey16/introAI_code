@@ -83,11 +83,17 @@ class ReflexAgent(Agent):
     if len(oldFood) > len(newFood):
         val += 11
     minDist = float("infinity")
+    closeFood = None
     for food in newFood:
         md = manhattanDistance(food, newPos)
         if md < minDist:
             minDist = md
-    val += 10/minDist
+            closeFood = food
+    # testing breadth first search
+    problem = PositionSearchProblem(successorGameState, goal=closeFood, start=newPos, warn=False)
+    realDist = len(breadthFirstSearch(problem))
+    if closeFood!=None:
+        val += 10/realDist
     return val
 
 def scoreEvaluationFunction(currentGameState):
@@ -321,7 +327,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 def closest(pos, others):
     if len(others)==0:
-        return (0, True, True)
+        return (0, pos)
     d = float("infinity")
     loc = None
     for other in others:
@@ -329,9 +335,7 @@ def closest(pos, others):
         if d2 < d:
             d = d2
             loc = other
-    right = other[0] > pos[0]
-    up = other[1] > pos[1]
-    return (d, right, up)
+    return (d, loc)
 
 def wallBetween(pos1, pos2, gameState):
     if manhattanDistance(pos1, pos2)<=1:
@@ -374,22 +378,26 @@ def betterEvaluationFunction(currentGameState):
     fterm = foodGrid.width*foodGrid.height-len(food)
     #gterm = closest(pos, ghosts)[0]
     gterm = 0
-    fdist, right, up = closest(pos, food)
+    fdist, floc = closest(pos, food)
+    
+    # breadth first search
+    #problem = PositionSearchProblem(currentGameState, goal=floc, start=pos, warn=False)
+    #realDist = len(breadthFirstSearch(problem))
+    
     dterm = 1/float(fdist+1)
   
     #coefficients
     a = 10
     b = 1
-    c = 10
+    c = 15
 
     for d in gdists:
         if d<3:
-            gterm-=30
+            gterm-=50
+        if d<2:
+            gterm-=50
     
     total = a*fterm + b*gterm + c*dterm
-
-    if len(food)==0:
-        total *= 10
     
     # break ties
     #if right:
@@ -397,7 +405,7 @@ def betterEvaluationFunction(currentGameState):
     #if up:
     #    total+=1
     return total
-
+'''
 def breadthFirstSearch(gameState):
     """
     copied then altered from project one
@@ -423,7 +431,7 @@ def breadthFirstSearch(gameState):
                 fringe.push(tup)
                 setPlease.add(gs2.getPacmanPosition)
     #need retrace because should never be here
-
+'''
 def breadthFirstSearch2(gameState):
     foodList = gameState.getFood().asList()
     foodNum = len(foodList)
