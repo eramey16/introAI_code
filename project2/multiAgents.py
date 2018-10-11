@@ -76,22 +76,19 @@ class ReflexAgent(Agent):
 
     #xGhost = [newGhostStates[i].getPosition()[0] for i in range(len(newGhostStates))]
     #[yGhost = newGhostStates[i].getPosition()[1] for i in range(len(newGhostStates))]
+    val = 0
     for gTuple in newGhostStates:
-        d = manhattanDistance(gTuple.getPosition(), newPos)
-        if d < 2:
-            return -10
-        if d < 3:
-            return -20
-
+        if manhattanDistance(gTuple.getPosition(), newPos) < 3:
+            return -500
     if len(currentGameState.getFood().asList()) > len(newFood.asList()):
-        return 500
+        return 499
     minDist = float("infinity")
     for food in newFood.asList():
 
         md = manhattanDistance(food, newPos)
         if md < minDist:
             minDist = md
-    return 1/minDist*100
+    return 1/minDist
 
 def scoreEvaluationFunction(currentGameState):
   """
@@ -359,12 +356,15 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    #more food = worse score
+    #closer food = good score
+    #closer than 3 ghost = bad score
+  
     foodGrid = currentGameState.getFood()
     food = foodGrid.asList()
     pos = currentGameState.getPacmanPosition()
     ghosts = []
     gdists = []
-    
     for i in range(1, currentGameState.getNumAgents()):
         g = currentGameState.getGhostPosition(i)
         ghosts.append(g)
@@ -374,23 +374,19 @@ def betterEvaluationFunction(currentGameState):
     fterm = foodGrid.width*foodGrid.height-len(food)
     #gterm = closest(pos, ghosts)[0]
     gterm = 0
-    gDistTerm = 0
     fdist, right, up = closest(pos, food)
-    #fdist = breadthFirstSearch2(currentGameState)
     dterm = 1/float(fdist+1)
-    
+  
     #coefficients
     a = 10
     b = 1
     c = 10
 
-    for i in range(len(gdists)):
-        if gdists[i]<3 and not wallBetween(pos, ghosts[i], currentGameState):
+    for d in gdists:
+        if d<3:
             gterm-=30
-        #else:
-        #    gDistTerm+=0.1/d
     
-    total = a*fterm + b*gterm + c*dterm #+gDistTerm
+    total = a*fterm + b*gterm + c*dterm
 
     if len(food)==0:
         total *= 10
