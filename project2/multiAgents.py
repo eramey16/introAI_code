@@ -336,6 +336,21 @@ def closest(pos, others):
     up = other[1] > pos[1]
     return (d, right, up)
 
+def wallBetween(pos1, pos2, gameState):
+    if manhattanDistance(pos1, pos2)<=1:
+        return False
+    x = (pos1[0]+pos2[0])/2.0
+    y = (pos1[1]+pos2[1])/2.0
+    
+    if int(x)!=x:
+        return False
+    
+    walls = gameState.getWalls().asList()
+    if (x+1, y) in walls or (x-1, y) in walls or (x, y+1) in walls or (x, y-1) in walls:
+        return True
+    
+    return False
+
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -344,16 +359,12 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    #more food = worse score
-    #closer food = good score
-    #closer than 3 ghost = bad score
-  
     foodGrid = currentGameState.getFood()
     food = foodGrid.asList()
     pos = currentGameState.getPacmanPosition()
     ghosts = []
     gdists = []
-    gstates = currentGameState.getGhostStates()
+    
     for i in range(1, currentGameState.getNumAgents()):
         g = currentGameState.getGhostPosition(i)
         ghosts.append(g)
@@ -363,19 +374,23 @@ def betterEvaluationFunction(currentGameState):
     fterm = foodGrid.width*foodGrid.height-len(food)
     #gterm = closest(pos, ghosts)[0]
     gterm = 0
+    gDistTerm = 0
     fdist, right, up = closest(pos, food)
+    #fdist = breadthFirstSearch2(currentGameState)
     dterm = 1/float(fdist+1)
-  
+    
     #coefficients
     a = 10
     b = 1
     c = 10
 
     for i in range(len(gdists)):
-        if gdists[i]<3:
+        if gdists[i]<3 and not wallBetween(pos, ghosts[i], currentGameState):
             gterm-=30
+        #else:
+        #    gDistTerm+=0.1/d
     
-    total = a*fterm + b*gterm + c*dterm
+    total = a*fterm + b*gterm + c*dterm #+gDistTerm
 
     if len(food)==0:
         total *= 10
@@ -413,6 +428,34 @@ def breadthFirstSearch(gameState):
                 setPlease.add(gs2.getPacmanPosition)
     #need retrace because should never be here
 
+def breadthFirstSearch2(gameState):
+    foodList = gameState.getFood().asList()
+    foodNum = len(foodList)
+    if foodNum == 0:
+        return 0
+    fringe = util.Queue()
+    visited = set()
+    start = (gameState, 0)
+    fringe.push(start)
+    
+    while not fringe.isEmpty():
+        gs, depth = fringe.pop()
+        pos = gs.getPacmanPosition()
+        if pos in visited:
+            continue
+        visited.add(pos)
+        
+        foodCount = len(gameState.getFood().asList())
+        if foodCount < foodNum:
+            return depth
+        
+        actions = gs.getLegalPacmanActions()
+        if Directions.STOP in actions:
+            actions.remove(Directions.STOP)
+        for action in actions:
+            nextState = (gs.generatePacmanSuccessor(action), depth+1)
+            fringe.push(nextState)
+            
 # Abbreviation
 better = betterEvaluationFunction
 
