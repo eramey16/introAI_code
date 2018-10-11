@@ -12,6 +12,9 @@ import random, util
 
 from game import Agent
 
+from searchAgents import PositionSearchProblem
+from search import breadthFirstSearch
+
 class ReflexAgent(Agent):
   """
     A reflex agent chooses an action at each choice point by examining
@@ -68,27 +71,24 @@ class ReflexAgent(Agent):
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
     "*** YOUR CODE HERE ***"
-    successorGameState = currentGameState.generatePacmanSuccessor(action)
-    newPos = successorGameState.getPacmanPosition()
-    newFood = successorGameState.getFood()
-    newGhostStates = successorGameState.getGhostStates()
-    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
     #xGhost = [newGhostStates[i].getPosition()[0] for i in range(len(newGhostStates))]
     #[yGhost = newGhostStates[i].getPosition()[1] for i in range(len(newGhostStates))]
     val = 0
+    oldFood = currentGameState.getFood().asList()
+    newFood = newFood.asList()
     for gTuple in newGhostStates:
         if manhattanDistance(gTuple.getPosition(), newPos) < 3:
-            return -500
-    if len(currentGameState.getFood().asList()) > len(newFood.asList()):
-        return 499
+            val -= 30
+    if len(oldFood) > len(newFood):
+        val += 11
     minDist = float("infinity")
-    for food in newFood.asList():
-
+    for food in newFood:
         md = manhattanDistance(food, newPos)
         if md < minDist:
             minDist = md
-    return 1/minDist
+    val += 10/minDist
+    return val
 
 def scoreEvaluationFunction(currentGameState):
   """
